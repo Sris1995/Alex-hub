@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#3b6bcc">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Alex Hub">
+<title>Alex Hub</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --blue:#3b6bcc;--blue-light:#eef2fb;--bg:#f0f4f8;--white:#fff;
+  --text:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;
+  --red:#ef4444;--orange:#f97316;--green:#22c55e;
+  --nav:68px;--safe:env(safe-area-inset-bottom,0px)
+}
+html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--text);overscroll-behavior:none}
+#app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto}
+#screen{flex:1;overflow-y:auto;padding-bottom:calc(var(--nav) + var(--safe) + 16px)}
+.page{display:none;padding:0 16px}
+.page.active{display:block}
+.hdr{padding:52px 16px 12px;background:var(--bg);position:sticky;top:0;z-index:10}
+.hdr .eye{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.hdr h1{font-size:26px;font-weight:800}
+.card{background:var(--white);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.ctitle{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.ti{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.ti:last-child{border-bottom:none}
+.tcb{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;margin-top:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.tcb.done{background:var(--green);border-color:var(--green)}
+.tcb.done::after{content:'✓';color:#fff;font-size:11px;font-weight:700}
+.tb{flex:1;min-width:0}
+.tn{font-size:14px;font-weight:500;line-height:1.3}
+.tn.done{text-decoration:line-through;color:var(--muted)}
+.tm{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+.b{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px}
+.b.r{background:#fef2f2;color:var(--red)}
+.b.o{background:#fff7ed;color:var(--orange)}
+.b.g{background:#f0fdf4;color:var(--green)}
+.b.bl{background:var(--blue-light);color:var(--blue)}
+.b.gr{background:#f3f4f6;color:var(--muted)}
+.sb{display:flex;gap:12px;align-items:center;padding:10px 12px;background:var(--blue-light);border-radius:12px;margin-bottom:8px}
+.sb:last-child{margin-bottom:0}
+.st{font-size:12px;font-weight:700;color:var(--blue);min-width:70px}
+.sn{font-size:13px;font-weight:600;flex:1}
+.stag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600}
+.stag.low{background:#dcfce7;color:#15803d}
+.stag.med{background:#ffedd5;color:#c2410c}
+.ce{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.ce:last-child{border-bottom:none}
+.cetime{font-size:11px;color:var(--muted);min-width:56px;font-weight:500;padding-top:2px}
+.cename{font-size:14px;font-weight:500;line-height:1.3}
+.cedesc{font-size:12px;color:var(--muted);margin-top:1px}
+.ei{padding:10px 0;border-bottom:1px solid var(--border)}
+.ei:last-child{border-bottom:none}
+.efrom{font-size:13px;font-weight:600;margin-bottom:2px}
+.esubj{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eprev{font-size:12px;color:var(--muted);margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.unread .efrom{color:var(--blue)}
+.ri{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.ri:last-child{border-bottom:none}
+.rk{font-weight:700;min-width:90px}
+.rv{color:var(--muted)}
+#nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:calc(var(--nav) + var(--safe));background:var(--white);border-top:1px solid var(--border);display:flex;align-items:flex-start;padding-top:8px;z-index:100;box-shadow:0 -2px 12px rgba(0,0,0,.06)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;border:none;background:transparent;color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.02em;transition:color .15s}
+.nb svg{width:22px;height:22px;stroke-width:1.8}
+.nb.active{color:var(--blue)}
+#fab{position:fixed;bottom:calc(var(--nav) + var(--safe) + 16px);right:20px;width:52px;height:52px;border-radius:50%;background:var(--blue);color:#fff;border:none;font-size:26px;cursor:pointer;box-shadow:0 4px 16px rgba(59,107,204,.4);display:flex;align-items:center;justify-content:center;z-index:99;transition:transform .15s}
+#fab:active{transform:scale(.93)}
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-end;justify-content:center}
+.mo.open{display:flex}
+.mb{background:var(--white);border-radius:24px 24px 0 0;padding:24px 20px calc(24px + var(--safe));width:100%;max-width:480px}
+.mb h2{font-size:18px;font-weight:700;margin-bottom:16px}
+.mb input,.mb select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;margin-bottom:10px;outline:none;font-family:inherit;background:var(--bg);color:var(--text)}
+.mb input:focus,.mb select:focus{border-color:var(--blue)}
+.mrow{display:flex;gap:10px}
+.mrow input,.mrow select{flex:1}
+.btnp{width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;margin-top:4px}
+.btnc{width:100%;padding:12px;background:transparent;color:var(--muted);border:none;font-size:15px;cursor:pointer;margin-top:4px}
+#signin{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:20px;padding:40px 24px;text-align:center}
+.logo{width:72px;height:72px;background:var(--blue);border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 20px rgba(59,107,204,.35);margin-bottom:4px}
+#signin h1{font-size:28px;font-weight:800}
+#signin p{color:var(--muted);font-size:15px;max-width:280px;line-height:1.5}
+.gbtn{display:flex;align-items:center;gap:12px;background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:14px 24px;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.gbtn img{width:22px;height:22px}
+.spin{width:20px;height:20px;border:2.5px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:sp .7s linear infinite;margin:20px auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+.empty{text-align:center;color:var(--muted);font-size:14px;padding:20px 0}
+.err{text-align:center;color:var(--red);font-size:13px;padding:12px 0}
+</style>
+</head>
+<body>
+
+<div id="signin">
+  <div class="logo">📋</div>
+  <h1>Alex Hub</h1>
+  <p>Your personal dashboard for teaching, dissertation, and daily life.</p>
+  <button class="gbtn" onclick="signIn()">
+    <img src="https://www.google.com/favicon.ico" alt="">
+    Sign in with Google
+  </button>
+  <p style="font-size:12px;color:#bbb;max-width:260px;margin-top:-8px">Connects to your Google Calendar and Gmail</p>
+</div>
+
+<div id="app" style="display:none">
+  <div id="screen">
+
+    <div class="page active" id="p-today">
+      <div class="hdr"><div class="eye" id="hdr-date"></div><h1>Today</h1></div>
+      <div class="card">
+        <div class="ctitle">📅 Today's Schedule</div>
+        <div id="today-cal">
+          <div class="sb"><span class="st">2:45 PM</span><span class="sn">After Work Wrap-Up</span><span class="stag low">Low</span></div>
+          <div class="sb"><span class="st">7:00 PM</span><span class="sn">Dissertation Work Block</span><span class="stag med">Medium</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ctitle">✅ My Tasks</div>
+        <div id="my-tasks"><div class="empty">No tasks yet — tap + to add one</div></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">✉️ Recent Emails</div>
+        <div id="email-today"><div class="spin"></div></div>
+      </div>
+    </div>
+
+    <div class="page" id="p-deadlines">
+      <div class="hdr"><div class="eye">EP750</div><h1>Deadlines</h1></div>
+      <div class="card">
+        <div class="ctitle">📚 Assignments</div>
+        <div class="ti"><div class="tcb" id="cb0" onclick="toggleEP(0)"></div><div class="tb"><div class="tn" id="tn0">Unit 9: Chapter 3, Part 4</div><div class="tm"><span class="b r">Due Jun 4</span><span class="b gr">50 pts</span></div></div></div>
+        <div class="ti"><div class="tcb" id="cb1" onclick="toggleEP(1)"></div><div class="tb"><div class="tn" id="tn1">Unit 10: Capstone Reader Selection</div><div class="tm"><span class="b r">Due Jun 7</span><span class="b gr">50 pts</span></div></div></div>
+        <div class="ti"><div class="tcb" id="cb2" onclick="toggleEP(2)"></div><div class="tb"><div class="tn" id="tn2">Unit 11: Chapter 1, Part 1</div><div class="tm"><span class="b o">Due Jun 11</span><span class="b gr">50 pts</span></div></div></div>
+        <div class="ti"><div class="tcb" id="cb3" onclick="toggleEP(3)"></div><div class="tb"><div class="tn" id="tn3">Unit 12: Chapter 1, Part 2</div><div class="tm"><span class="b o">Due Jun 14</span><span class="b gr">50 pts</span></div></div></div>
+        <div class="ti"><div class="tcb" id="cb4" onclick="toggleEP(4)"></div><div class="tb"><div class="tn" id="tn4">Unit 13 Signature: Completed Capstone Proposal (Ch 1–3)</div><div class="tm"><span class="b g">Due Jun 17</span><span class="b gr">100 pts</span></div></div></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">🗓 This Week</div>
+        <div id="week-cal"><div class="spin"></div></div>
+      </div>
+    </div>
+
+    <div class="page" id="p-email">
+      <div class="hdr"><div class="eye">Inbox</div><h1>Email</h1></div>
+      <div class="card">
+        <div class="ctitle">Recent Messages</div>
+        <div id="email-full"><div class="spin"></div></div>
+      </div>
+    </div>
+
+    <div class="page" id="p-ref">
+      <div class="hdr"><div class="eye">Quick Lookup</div><h1>Reference</h1></div>
+      <div class="card">
+        <div class="ctitle">📖 Key Terms</div>
+        <div class="ri"><span class="rk">Chair</span><span class="rv">Dr. Statti</span></div>
+        <div class="ri"><span class="rk">EP750</span><span class="rv">Doctoral capstone course</span></div>
+        <div class="ri"><span class="rk">Capstone</span><span class="rv">Dissertation Chapters 1–3</span></div>
+        <div class="ri"><span class="rk">ESOL</span><span class="rv">English language learner support</span></div>
+        <div class="ri"><span class="rk">ESE</span><span class="rv">Special education support</span></div>
+        <div class="ri"><span class="rk">Bell work</span><span class="rv">Warm-up at class start</span></div>
+        <div class="ri"><span class="rk">Exit ticket</span><span class="rv">End-of-class check</span></div>
+        <div class="ri"><span class="rk">APA</span><span class="rv">Citation format for dissertation</span></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">📋 After Work Checklist</div>
+        <div class="ri"><span class="rk">1</span><span class="rv">Review missing assignments, blank submissions, grades</span></div>
+        <div class="ri"><span class="rk">2</span><span class="rv">Draft parent/student messages (missing work, behavior, retakes)</span></div>
+        <div class="ri"><span class="rk">3</span><span class="rv">Prep: bell work, exit ticket, Google Classroom post, ESOL/ESE supports</span></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">🎓 Dissertation Checklist</div>
+        <div class="ri"><span class="rk">Ch 2</span><span class="rv">Lit review, source summaries, conceptual framework, methodology</span></div>
+        <div class="ri"><span class="rk">Format</span><span class="rv">APA throughout, chair questions addressed</span></div>
+        <div class="ri"><span class="rk">Weekly</span><span class="rv">Check EP750 assignment deadlines</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <nav id="nav">
+    <button class="nb active" onclick="nav('today',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Today
+    </button>
+    <button class="nb" onclick="nav('deadlines',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Deadlines
+    </button>
+    <button class="nb" onclick="nav('email',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Email
+    </button>
+    <button class="nb" onclick="nav('ref',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Reference
+    </button>
+  </nav>
+
+  <button id="fab" onclick="openModal()">+</button>
+</div>
+
+<div class="mo" id="modal">
+  <div class="mb">
+    <h2>Add Task</h2>
+    <input type="text" id="ti-name" placeholder="Task name" />
+    <div class="mrow">
+      <input type="date" id="ti-date" />
+      <input type="time" id="ti-time" value="09:00" />
+    </div>
+    <select id="ti-cat">
+      <option>General</option>
+      <option>University / EP750</option>
+      <option>Teaching</option>
+      <option>Personal</option>
+    </select>
+    <select id="ti-pri">
+      <option>Medium priority</option>
+      <option>High priority</option>
+      <option>Low priority</option>
+    </select>
+    <label style="display:flex;align-items:center;gap:8px;font-size:14px;margin-bottom:12px;cursor:pointer">
+      <input type="checkbox" id="ti-cal" style="width:18px;height:18px;accent-color:var(--blue);margin:0">
+      Add to Google Calendar
+    </label>
+    <button class="btnp" onclick="addTask()">Add Task</button>
+    <button class="btnc" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+const CLIENT_ID = '404296154246-2e0rgnfmmtfrgfdt0egvblccj7854p6p.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/gmail.readonly';
+
+let token = null;
+let tasks = JSON.parse(localStorage.getItem('ah_tasks') || '[]');
+let epDone = JSON.parse(localStorage.getItem('ah_ep') || '{}');
+
+// ── AUTH ─────────────────────────────────────────────
+function signIn() {
+  const client = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback(res) {
+      if (res.error) { alert('Sign-in failed: ' + res.error); return; }
+      token = res.access_token;
+      boot();
+    }
+  });
+  client.requestAccessToken();
+}
+
+function boot() {
+  document.getElementById('signin').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  setDate();
+  restoreEP();
+  renderTasks();
+  loadTodayCalendar();
+  loadWeekCalendar();
+  loadEmails();
+}
+
+// Try cached token on load
+window.addEventListener('load', () => {
+  // Token cannot be cached securely — user must sign in each session
+  // This is intentional for security
+});
+
+// ── DATE ─────────────────────────────────────────────
+function setDate() {
+  const d = new Date();
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('hdr-date').textContent =
+    `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
+}
+
+// ── NAV ───────────────────────────────────────────────
+function nav(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('active'));
+  document.getElementById('p-' + name).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('screen').scrollTop = 0;
+}
+
+// ── EP750 ─────────────────────────────────────────────
+function toggleEP(i) {
+  epDone[i] = !epDone[i];
+  localStorage.setItem('ah_ep', JSON.stringify(epDone));
+  restoreEP();
+}
+function restoreEP() {
+  for (let i = 0; i < 5; i++) {
+    document.getElementById('cb'+i)?.classList.toggle('done', !!epDone[i]);
+    document.getElementById('tn'+i)?.classList.toggle('done', !!epDone[i]);
+  }
+}
+
+// ── CALENDAR ─────────────────────────────────────────
+async function calFetch(start, end) {
+  const p = new URLSearchParams({ timeMin: start.toISOString(), timeMax: end.toISOString(), singleEvents: true, orderBy: 'startTime', maxResults: 15 });
+  const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?${p}`,
+    { headers: { Authorization: `Bearer ${token}` } });
+  if (!r.ok) throw new Error('Calendar fetch failed');
+  return (await r.json()).items || [];
+}
+
+function fmtTime(s) { return new Date(s).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
+function fmtDate(s) { return new Date(s).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }); }
+
+async function loadTodayCalendar() {
+  const el = document.getElementById('today-cal');
+  try {
+    const s = new Date(); s.setHours(0,0,0,0);
+    const e = new Date(); e.setHours(23,59,59,999);
+    const evts = await calFetch(s, e);
+    let html = `<div class="sb"><span class="st">2:45 PM</span><span class="sn">After Work Wrap-Up</span><span class="stag low">Low</span></div>
+      <div class="sb"><span class="st">7:00 PM</span><span class="sn">Dissertation Work Block</span><span class="stag med">Medium</span></div>`;
+    if (evts.length) html += evts.map(ev => `
+      <div class="ce"><div class="cetime">${ev.start?.dateTime ? fmtTime(ev.start.dateTime) : 'All day'}</div>
+      <div><div class="cename">${ev.summary||'Untitled'}</div>${ev.location?`<div class="cedesc">${ev.location}</div>`:''}</div></div>`).join('');
+    el.innerHTML = html;
+  } catch { el.innerHTML += '<div class="err">Could not load live events</div>'; }
+}
+
+async function loadWeekCalendar() {
+  const el = document.getElementById('week-cal');
+  try {
+    const s = new Date();
+    const e = new Date(); e.setDate(e.getDate()+7);
+    const evts = await calFetch(s, e);
+    el.innerHTML = evts.length
+      ? evts.map(ev=>`<div class="ce"><div class="cetime">${fmtDate(ev.start?.dateTime||ev.start?.date)}</div>
+          <div><div class="cename">${ev.summary||'Untitled'}</div>${ev.start?.dateTime?`<div class="cedesc">${fmtTime(ev.start.dateTime)}</div>`:''}</div></div>`).join('')
+      : '<div class="empty">Nothing this week 🎉</div>';
+  } catch { el.innerHTML = '<div class="err">Could not load events</div>'; }
+}
+
+// ── EMAIL ─────────────────────────────────────────────
+async function loadEmails() {
+  try {
+    const lr = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=10&labelIds=INBOX',
+      { headers: { Authorization: `Bearer ${token}` } });
+    const msgs = (await lr.json()).messages || [];
+    const details = await Promise.all(msgs.slice(0,8).map(m =>
+      fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${m.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject`,
+        { headers: { Authorization: `Bearer ${token}` } }).then(r=>r.json())
+    ));
+    const html = details.map(msg => {
+      const from = (getH(msg,'From')||'').replace(/<[^>]+>/g,'').replace(/"/g,'').trim();
+      const subj = getH(msg,'Subject')||'(no subject)';
+      const unread = msg.labelIds?.includes('UNREAD');
+      return `<div class="ei ${unread?'unread':''}">
+        <div class="efrom">${from||'Unknown'}</div>
+        <div class="esubj">${subj}</div>
+        <div class="eprev">${msg.snippet||''}</div></div>`;
+    }).join('');
+    const out = html || '<div class="empty">No emails</div>';
+    document.getElementById('email-today').innerHTML = out;
+    document.getElementById('email-full').innerHTML = out;
+  } catch {
+    const e = '<div class="err">Could not load emails</div>';
+    document.getElementById('email-today').innerHTML = e;
+    document.getElementById('email-full').innerHTML = e;
+  }
+}
+function getH(msg,name){ return msg.payload?.headers?.find(h=>h.name===name)?.value||''; }
+
+// ── TASKS ─────────────────────────────────────────────
+function renderTasks() {
+  const el = document.getElementById('my-tasks');
+  if (!tasks.length) { el.innerHTML = '<div class="empty">No tasks yet — tap + to add one</div>'; return; }
+  el.innerHTML = tasks.map((t,i) => {
+    const dc = (d => { if(!d) return 'g'; const diff=(new Date(d)-new Date())/86400000; return diff<3?'r':diff<7?'o':'g'; })(t.date);
+    return `<div class="ti">
+      <div class="tcb ${t.done?'done':''}" onclick="toggleTask(${i})"></div>
+      <div class="tb">
+        <div class="tn ${t.done?'done':''}">${t.name}</div>
+        <div class="tm">
+          ${t.date?`<span class="b ${dc}">${new Date(t.date+'T00:00:00').toLocaleDateString([],{month:'short',day:'numeric'})}</span>`:''}
+          <span class="b bl">${t.cat}</span>
+          ${t.cal?'<span class="b g">📅 Calendar</span>':''}
+        </div>
+      </div>
+      <button onclick="deleteTask(${i})" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0 4px;line-height:1">×</button>
+    </div>`;
+  }).join('');
+}
+function toggleTask(i){ tasks[i].done=!tasks[i].done; saveT(); renderTasks(); }
+function deleteTask(i){ tasks.splice(i,1); saveT(); renderTasks(); }
+function saveT(){ localStorage.setItem('ah_tasks', JSON.stringify(tasks)); }
+
+// ── MODAL ─────────────────────────────────────────────
+function openModal(){ document.getElementById('modal').classList.add('open'); document.getElementById('ti-name').focus(); }
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click', e => { if(e.target.id==='modal') closeModal(); });
+
+async function addTask() {
+  const name = document.getElementById('ti-name').value.trim();
+  if (!name) return;
+  const date = document.getElementById('ti-date').value;
+  const time = document.getElementById('ti-time').value;
+  const cat  = document.getElementById('ti-cat').value;
+  const addCal = document.getElementById('ti-cal').checked;
+  let calAdded = false;
+
+  if (addCal && date && token) {
+    try {
+      const start = new Date(`${date}T${time}:00`);
+      const end   = new Date(start.getTime() + 3600000);
+      await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ summary: name, description: `Category: ${cat}`,
+          start: { dateTime: start.toISOString() }, end: { dateTime: end.toISOString() } })
+      });
+      calAdded = true;
+    } catch(e) { console.error(e); }
+  }
+
+  tasks.unshift({ name, date, cat, done: false, cal: calAdded });
+  saveT();
+  document.getElementById('ti-name').value = '';
+  document.getElementById('ti-date').value = '';
+  document.getElementById('ti-cal').checked = false;
+  closeModal();
+  renderTasks();
+  if (calAdded) { loadTodayCalendar(); loadWeekCalendar(); }
+}
+</script>
+</body>
+</html>
